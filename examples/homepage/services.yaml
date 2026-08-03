@@ -1,0 +1,129 @@
+# Copy this to  ${CONFIG_ROOT}/homepage/services.yaml  and fill in each API key
+# (found in each app under Settings -> General -> Security -> API Key).
+# Widget + siteMonitor URLs use the container name on the shared network;
+# the clickable href uses localhost so it opens from your browser.
+---
+- Media:
+    - Plex:
+        icon: plex.png
+        href: http://localhost:32400/web
+        description: Watch your library
+        siteMonitor: http://plex:32400/web
+        # For active-streams + library counts, add your Plex token:
+        # widget:
+        #   type: plex
+        #   url: http://plex:32400
+        #   key: YOUR_PLEX_TOKEN
+    - Jellyfin:                    # optional free media server (remove if not used)
+        icon: jellyfin.png
+        href: http://localhost:8096
+        description: Free media server
+        siteMonitor: http://jellyfin:8096
+        widget:
+          type: jellyfin
+          url: http://jellyfin:8096
+          key: YOUR_JELLYFIN_API_KEY
+          enableBlocks: true
+          enableNowPlaying: true
+    - Navidrome:                   # optional free music server
+        icon: navidrome.png
+        href: http://localhost:4533
+        description: Music server
+        siteMonitor: http://navidrome:4533
+    - Seerr:
+        icon: overseerr.png
+        href: http://localhost:5055
+        description: Request movies & TV
+        siteMonitor: http://seerr:5055
+        widget:
+          type: overseerr
+          url: http://seerr:5055
+          key: YOUR_SEERR_API_KEY
+          fields: ["pending", "processing", "approved", "available"]
+
+# Upcoming/airing releases pulled from your *arr apps (needs their widgets set below):
+- Coming Up:
+    - Release Calendar:
+        widget:
+          type: calendar
+          view: monthly          # month grid (like Radarr); use "agenda" for a list
+          firstDayInWeek: sunday
+          maxEvents: 25
+          integrations:
+            - type: sonarr
+              service_group: Automation
+              service_name: Sonarr
+            - type: radarr
+              service_group: Automation
+              service_name: Radarr
+            - type: lidarr
+              service_group: Automation
+              service_name: Lidarr
+
+- Automation:
+    - Radarr:
+        icon: radarr.png
+        href: http://localhost:7878
+        description: Movies
+        siteMonitor: http://radarr:7878
+        widget:
+          type: radarr
+          url: http://radarr:7878
+          key: YOUR_RADARR_API_KEY
+          enableQueue: true
+    - Sonarr:
+        icon: sonarr.png
+        href: http://localhost:8989
+        description: TV shows
+        siteMonitor: http://sonarr:8989
+        widget:
+          type: sonarr
+          url: http://sonarr:8989
+          key: YOUR_SONARR_API_KEY
+          enableQueue: true
+    - Lidarr:
+        icon: lidarr.png
+        href: http://localhost:8686
+        description: Music
+        siteMonitor: http://lidarr:8686
+        widget:
+          type: lidarr
+          url: http://lidarr:8686
+          key: YOUR_LIDARR_API_KEY
+    - Prowlarr:
+        icon: prowlarr.png
+        href: http://localhost:9696
+        description: Indexers
+        siteMonitor: http://prowlarr:9696
+        widget:
+          type: prowlarr
+          url: http://prowlarr:9696
+          key: YOUR_PROWLARR_API_KEY
+          fields: ["numberOfGrabs", "numberOfQueries", "numberOfFailGrabs"]
+
+- Downloads and Subs:
+    - SABnzbd:
+        icon: sabnzbd.png
+        href: http://localhost:8080
+        description: Usenet downloader
+        siteMonitor: http://sabnzbd:8080
+        widget:
+          type: sabnzbd
+          url: http://sabnzbd:8080
+          key: YOUR_SABNZBD_API_KEY
+          fields: ["rate", "queue", "timeleft"]
+    - Bazarr:
+        icon: bazarr.png
+        href: http://localhost:6767
+        description: Subtitles
+        siteMonitor: http://bazarr:6767
+        widget:
+          type: bazarr
+          url: http://bazarr:6767
+          key: YOUR_BAZARR_API_KEY
+          fields: ["missingEpisodes", "missingMovies"]
+    - MeTube:                      # optional - grab specific songs/videos
+        icon: metube.png
+        href: http://localhost:8082
+        description: Grab specific songs/videos
+        siteMonitor: http://metube:8081

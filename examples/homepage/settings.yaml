@@ -1,0 +1,36 @@
+# Copy to  ${CONFIG_ROOT}/homepage/settings.yaml
+# Layout group names MUST match the group names in services.yaml.
+---
+title: My Media Stack
+theme: dark
+color: slate
+headerStyle: clean
+target: _blank
+statusStyle: dot          # show each service's up/down as a coloured dot
+hideVersion: true
+
+# Optional cinematic background (remove this block for plain dark):
+background:
+  image: https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1920&q=80
+  blur: sm
+  brightness: 35
+  saturate: 60
+  opacity: 45
+
+layout:
+  Media:
+    icon: mdi-television-play
+    style: row
+    columns: 4
+  Coming Up:
+    icon: mdi-calendar-clock
+    style: row
+    columns: 1
+  Automation:
+    icon: mdi-robot
+    style: row
+    columns: 4
+  Downloads and Subs:
+    icon: mdi-download-circle
+    style: row
+    columns: 3

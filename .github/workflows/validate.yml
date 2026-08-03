@@ -1,0 +1,15 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  compose:
+    name: Validate docker-compose
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: docker compose config
+        # Parses & type-checks the compose file using the example env.
+        run: docker compose --env-file .env.example config -q

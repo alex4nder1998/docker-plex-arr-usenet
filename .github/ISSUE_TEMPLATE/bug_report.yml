@@ -1,0 +1,46 @@
+name: Bug report
+description: Something in the stack isn't working
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please check **[docs/TROUBLESHOOTING.md](../blob/main/docs/TROUBLESHOOTING.md)** first — most issues are covered there.
+        ⚠️ **Never paste real API keys, tokens, or provider logins.** Redact them.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What went wrong, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+  - type: input
+    id: env
+    attributes:
+      label: OS + Docker version
+      placeholder: "Windows 11 / Docker Desktop 4.x  (or Ubuntu 24.04 / Docker Engine 27)"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: "Output of `docker logs <service> --tail 50` — REDACT any API keys first."
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked docs/TROUBLESHOOTING.md
+          required: true
+        - label: I removed all secrets / API keys from this report
+          required: true

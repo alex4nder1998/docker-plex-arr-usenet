@@ -1,0 +1,12 @@
+# Secrets & real config (contains API keys, passwords, tokens, databases)
+.env
+config/
+
+# Backups
+*.bak
+*.pre-*
+docker-compose.*.bak
+
+# OS junk
+.DS_Store
+Thumbs.db

@@ -1,0 +1,257 @@
+name: media-stack
+
+# All services share one network and talk by container name (e.g. http://sonarr:8989).
+# Paths, timezone, and IDs come from .env  (copy .env.example -> .env first).
+
+x-common-env: &common-env
+  PUID: ${PUID:-1000}
+  PGID: ${PGID:-1000}
+  TZ: ${TZ:-Etc/UTC}
+
+services:
+  # ---------- Usenet downloader ----------
+  sabnzbd:
+    container_name: sabnzbd
+    image: lscr.io/linuxserver/sabnzbd:latest
+    environment: *common-env
+    ports:
+      - 8080:8080
+    volumes:
+      - ${CONFIG_ROOT}/sabnzbd:/config
+      - ${DATA_ROOT}:/data
+    networks:
+      media-network:
+        ipv4_address: 172.20.0.9
+    restart: unless-stopped
+
+  # ---------- Indexer manager ----------
+  prowlarr:
+    container_name: prowlarr
+    image: lscr.io/linuxserver/prowlarr:latest
+    environment: *common-env
+    ports:
+      - 9696:9696
+    volumes:
+      - ${CONFIG_ROOT}/prowlarr:/config
+    networks:
+      media-network:
+        ipv4_address: 172.20.0.6
+    restart: unless-stopped
+
+  # ---------- Movies / TV / Music ----------
+  radarr:
+    container_name: radarr
+    image: lscr.io/linuxserver/radarr:latest
+    environment: *common-env
+    ports:
+      - 7878:7878
+    volumes:
+      - ${CONFIG_ROOT}/radarr:/config
+      - ${DATA_ROOT}:/data
+    networks:
+      media-network:
+        ipv4_address: 172.20.0.5
+    restart: unless-stopped
+
+  sonarr:
+    container_name: sonarr
+    image: lscr.io/linuxserver/sonarr:latest
+    environment: *common-env
+    ports:
+      - 8989:8989
+    volumes:
+      - ${CONFIG_ROOT}/sonarr:/config
+      - ${DATA_ROOT}:/data
+    networks:
+      media-network:
+        ipv4_address: 172.20.0.3
+    restart: unless-stopped
+
+  lidarr:
+    container_name: lidarr
+    image: lscr.io/linuxserver/lidarr:latest
+    environment: *common-env
+    ports:
+      - 8686:8686
+    volumes:
+      - ${CONFIG_ROOT}/lidarr:/config
+      - ${DATA_ROOT}:/data
+    networks:
+      media-network:
+        ipv4_address: 172.20.0.10
+    restart: unless-stopped
+
+  # ---------- Subtitles ----------
+  bazarr:
+    container_name: bazarr
+    image: lscr.io/linuxserver/bazarr:latest
+    environment: *common-env
+    ports:
+      - 6767:6767
+    volumes:
+      - ${CONFIG_ROOT}/bazarr:/config
+      - ${DATA_ROOT}:/data
+    networks:
+      media-network:
+        ipv4_address: 172.20.0.8
+    restart: unless-stopped
+
+  # ---------- Requests (Seerr = successor to Overseerr/Jellyseerr) ----------
+  seerr:
+    container_name: seerr
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    user: "0:0"   # avoids EACCES on /app/config with Docker Desktop bind mounts
+    environment:
+      LOG_LEVEL: info
+      TZ: ${TZ:-Etc/UTC}
+      PORT: 5055
+    ports:
+      - 5055:5055
+    volumes:
+      - ${CONFIG_ROOT}/seerr:/app/config
+    networks:
+      media-network:
+        ipv4_address: 172.20.0.4
+    restart: unless-stopped
+
+  # ---------- Plex ----------
+  plex:
+    container_name: plex
+    image: lscr.io/linuxserver/plex:latest
+    environment:
+      <<: *common-env
+      VERSION: docker
+      PLEX_CLAIM: ${PLEX_CLAIM_TOKEN:-}
+    ports:
+      - 32400:32400
+    volumes:
+      - ${CONFIG_ROOT}/plex:/config
+      - ${DATA_ROOT}:/data
+    networks:
+      - media-network
+    restart: unless-stopped
+    # TIP: after setup, add your Docker subnet (172.20.0.0/16) to
+    # Plex > Settings > Network > "LAN Networks" so local clients Direct Play.
+
+  # ---------- Unified dashboard ----------
+  homepage:
+    container_name: homepage
+    image: ghcr.io/gethomepage/homepage:latest
+    environment:
+      <<: *common-env
+      HOMEPAGE_ALLOWED_HOSTS: localhost:3000,127.0.0.1:3000
+    ports:
+      - 3000:3000
+    volumes:
+      - ${CONFIG_ROOT}/homepage:/app/config
+      - ${DATA_ROOT}:/media:ro          # lets the dashboard show media-drive disk usage
+    networks:
+      media-network:
+        ipv4_address: 172.20.0.11
+    restart: unless-stopped
+
+  # ---------- OPTIONAL free alternatives / extras (all run alongside Plex) ----------
+
+  # Jellyfin - free, open-source media server (full Plex alternative)
+  jellyfin:
+    container_name: jellyfin
+    image: lscr.io/linuxserver/jellyfin:latest
+    environment:
+      <<: *common-env
+    ports:
+      - 8096:8096
+    volumes:
+      - ${CONFIG_ROOT}/jellyfin:/config
+      - ${DATA_ROOT}:/data
+    networks:
+      media-network:
+        ipv4_address: 172.20.0.15
+    restart: unless-stopped
+
+  # Navidrome - free, open-source music server (use with Amperfy/substreamer on mobile)
+  navidrome:
+    container_name: navidrome
+    image: deluan/navidrome:latest
+    environment:
+      ND_MUSICFOLDER: /music
+      ND_DATAFOLDER: /data
+      ND_SCANSCHEDULE: 1h
+    ports:
+      - 4533:4533
+    volumes:
+      - ${CONFIG_ROOT}/navidrome:/data
+      - ${DATA_ROOT}/music:/music:ro
+    networks:
+      media-network:
+        ipv4_address: 172.20.0.14
+    restart: unless-stopped
+
+  # MeTube - yt-dlp web UI for grabbing specific songs/videos into the music library
+  metube:
+    container_name: metube
+    image: ghcr.io/alexta69/metube:latest
+    environment:
+      UID: ${PUID}
+      GID: ${PGID}
+      DARK_MODE: "true"
+      OUTPUT_TEMPLATE: "%(uploader)s/%(title)s.%(ext)s"
+    ports:
+      - 8082:8081
+    volumes:
+      - ${DATA_ROOT}/music:/downloads
+    networks:
+      media-network:
+        ipv4_address: 172.20.0.13
+    restart: unless-stopped
+
+  # ======================================================================
+  # OPTIONAL: torrents behind a VPN kill-switch. Uncomment BOTH services.
+  # qBittorrent has no network of its own — it routes through gluetun and
+  # cannot start or leak unless the VPN tunnel is healthy.
+  # ======================================================================
+  # gluetun:
+  #   container_name: gluetun
+  #   image: qmcgaw/gluetun:latest
+  #   cap_add: [NET_ADMIN]
+  #   devices: [/dev/net/tun:/dev/net/tun]
+  #   environment:
+  #     VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER:-mullvad}
+  #     VPN_TYPE: wireguard
+  #     WIREGUARD_PRIVATE_KEY: ${WIREGUARD_PRIVATE_KEY}
+  #     WIREGUARD_ADDRESSES: ${WIREGUARD_ADDRESSES}
+  #     SERVER_COUNTRIES: ${SERVER_COUNTRIES:-}
+  #     FIREWALL: "on"
+  #     FIREWALL_OUTBOUND_SUBNETS: 172.20.0.0/16
+  #     TZ: ${TZ:-Etc/UTC}
+  #   ports:
+  #     - 5080:5080        # qbittorrent webui (served via gluetun)
+  #     - 6881:6881
+  #     - 6881:6881/udp
+  #   networks:
+  #     media-network:
+  #       ipv4_address: 172.20.0.2
+  #   restart: unless-stopped
+  #
+  # qbittorrent:
+  #   container_name: qbittorrent
+  #   image: lscr.io/linuxserver/qbittorrent:latest
+  #   network_mode: "service:gluetun"
+  #   depends_on:
+  #     gluetun:
+  #       condition: service_healthy
+  #   environment:
+  #     <<: *common-env
+  #     WEBUI_PORT: 5080
+  #   volumes:
+  #     - ${CONFIG_ROOT}/qbittorrent:/config
+  #     - ${DATA_ROOT}:/data
+  #   restart: unless-stopped
+  #   # In Sonarr/Radarr, set the qBittorrent download-client host to "gluetun".
+
+networks:
+  media-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

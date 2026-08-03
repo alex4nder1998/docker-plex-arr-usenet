@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Setup & troubleshooting docs
+    url: https://github.com/alex4nder1998/docker-plex-arr-usenet/blob/main/docs/SETUP.md
+    about: Read the full setup guide and troubleshooting doc before opening an issue.
+  - name: 💬 Servarr / TRaSH community
+    url: https://wiki.servarr.com
+    about: For questions about the underlying apps (Sonarr, Radarr, etc.) themselves.

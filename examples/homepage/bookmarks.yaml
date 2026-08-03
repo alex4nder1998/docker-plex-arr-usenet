@@ -1,0 +1,20 @@
+# Copy to  ${CONFIG_ROOT}/homepage/bookmarks.yaml
+---
+- Accounts:
+    - Usenet Provider:
+        - abbr: UP
+          href: https://www.frugalusenet.com/
+    - Usenet Indexer:
+        - abbr: UI
+          href: https://nzbgeek.info/
+    - Plex:
+        - abbr: PX
+          href: https://app.plex.tv/
+
+- Guides:
+    - TRaSH Guides:
+        - abbr: TG
+          href: https://trash-guides.info/
+    - Servarr Wiki:
+        - abbr: SW
+          href: https://wiki.servarr.com/

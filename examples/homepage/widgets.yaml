@@ -1,0 +1,28 @@
+# Copy to  ${CONFIG_ROOT}/homepage/widgets.yaml
+# The "Media Drive" disk widget needs the media volume mounted into the
+# homepage container, e.g.  - ${DATA_ROOT}:/media:ro  (see docker-compose.yml).
+---
+- greeting:
+    text_size: 4xl
+    text: 🎬 My Media Stack
+
+- datetime:
+    text_size: xl
+    format:
+      dateStyle: full
+      timeStyle: short
+      hourCycle: h23
+
+- search:
+    provider: duckduckgo
+    target: _blank
+    focus: false
+
+- resources:
+    label: Server
+    cpu: true
+    memory: true
+
+- resources:
+    label: Media Drive
+    disk: /media
